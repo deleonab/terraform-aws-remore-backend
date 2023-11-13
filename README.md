@@ -674,5 +674,11 @@ terraform apply -auto-approve
 
 ![](./images/remote-sonar.png)
 
+### We have successfully created a remote backend for our terraform configuration.
 
+### Remeber to destroy your infrastructure to avoid soaring costs.
+
+```
+terraform destroy -auto-approve
+```
 
