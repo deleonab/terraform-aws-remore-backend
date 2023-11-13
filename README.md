@@ -181,7 +181,7 @@ resource "aws_route_table_association" "public_rt_association2" {
   
 }
 
-
+```
 ### Let's create our ec2 instance (jenkins_server)
 ### We shall use a userdata shell script to install Terraform,
 Docker, Maven, Kubectl, Trivy and SonarQube needed by the CICD team.
@@ -193,7 +193,7 @@ touch jenkins.tf
 
 
 ### This data store is holding the most recent ubuntu 20.04 image
-``````
+```
 data "aws_ami" "ubuntu" {
    most_recent = "true"
 
