@@ -1,6 +1,7 @@
 
 HOW TO STORE OUR TERRAFORM STATE FOR OUR INFRASTRUCTURE IN A REMOTE BACKEND
 ----------------------------
+![](./images/backend-diagram.jpg)
 
 Prerequisites
 1. AWS account
