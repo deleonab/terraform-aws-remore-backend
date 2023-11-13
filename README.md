@@ -647,3 +647,32 @@ terraform {
   }
 }
 ```
+### Now let's create our infrastructure using the new backend
+
+```
+terraform init
+```
+```
+terraform plan
+```
+
+```
+terraform apply -auto-approve
+```
+
+![](./images/remote-apply.png)
+
+### get public ip
+
+![](./images/remote-public-ip.png)
+
+### Check jenkins installation
+
+![](./images/remote-jenkins.png)
+
+### Check SonarQube installation
+
+![](./images/remote-sonar.png)
+
+
+
