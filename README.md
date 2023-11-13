@@ -498,3 +498,151 @@ terraform apply
 ![](./images/local-jenkins.png)
 
 ![](./images/local-sonarqube.png)
+
+### Our installation is successful
+### Let's destroy our infrastructure 
+
+```
+terraform destroy -auto-approve
+```
+
+### Infrastructure destroyed
+
+
+### We are now going to update our configuration to use a remote backend instead od the default local backend.
+
+
+
+### Let's create a directory that will host the code to provision our S3 bucket and DynamoDB table
+
+```
+mkdir backend
+```
+
+Create provider.tf, backend.tf, variables.tf and terraform.tfvars in the backend directory
+
+```
+cd backend/
+```
+```
+touch  provider.tf backend.tf variables.tf terraform.tfvars
+```
+
+### provider.tf
+
+```
+provider "aws" {
+  region = var.region
+}
+
+terraform {
+  required_version = ">= 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+  }
+}
+```
+
+### backend.tf
+### Create our S3 bucket, s3 bucket versioning resource, server side encryption by default resource and Dynamo DB table.
+### backend.tf
+```
+resource "aws_s3_bucket" "devops-uncut-remote-backend" {
+  bucket = var.s3_bucket_name
+  force_destroy = true
+}
+
+
+resource "aws_s3_bucket_versioning" "bucket-versioning" {
+  bucket = var.s3_bucket_name
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "bucket-encrypt" {
+  bucket = var.s3_bucket_name
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_dynamodb_table" "terraform_locks" {
+  name         = var.s3_dynamodb_name
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "LockID"
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+}
+```
+### Let's create the remote backend
+
+```
+terraform init
+```
+```
+terraform plan
+```
+
+```
+terraform apply -auto-approve
+```
+
+### Log into the AWS console to see if out s3 bucket and dynamodb table have been created.
+
+### Dynamo DB
+
+![](./images/dynamo-db.png)
+
+### S3
+
+![](./images/s3-bucket.png)
+
+
+### Now, we need to go to the configurations for our infrastructure and instruct terraform to use ae remote backend using the s3 and dynamo db table we created.
+
+### go to your infrastructures provider.tf file
+```
+cd ..
+```
+```
+cd create-jenkins-server-and-vpc
+```
+### open create-jenkins-server-and-vpc/provider.tf
+
+### Add the terraform backend block and reference the created backend.
+### It should now look as below
+```
+provider "aws" {
+  region = var.region
+}
+
+terraform {
+  required_version = ">= 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+  }
+}
+
+terraform {
+  backend "s3" {
+    bucket         = "devops-uncut-remote-backend"
+    key            = "global/s3/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "devops-uncut-terraform-locking"
+    encrypt        = true
+  }
+}
+```
